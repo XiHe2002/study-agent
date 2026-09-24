@@ -2,5 +2,10 @@ POST http://localhost:8080/api/study/diagnose
 Content-Type: application/json
 
 {
-  "topic": "Redis"
+  "topic": "MySQL",
+  "description": "我还不太理解主键和自增"
 }
+
+###
+
+GET http://localhost:8080/api/study/records
