@@ -35,3 +35,10 @@ build/
 # Local secrets
 .env
 .env.*
+
+uploads/
+
+
+/test-note.txt
+/test-note.md
+/*.pdf
