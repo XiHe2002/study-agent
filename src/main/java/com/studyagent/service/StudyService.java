@@ -13,21 +13,26 @@ import java.util.List;
 public class StudyService {
 
     private final LearningRecordMapper learningRecordMapper;
+    private final AiService aiService;
 
-    public StudyService(LearningRecordMapper learningRecordMapper) {
+    public StudyService(
+            LearningRecordMapper learningRecordMapper,
+            AiService aiService
+    ) {
         this.learningRecordMapper = learningRecordMapper;
+        this.aiService = aiService;
     }
 
     public StudyResponse diagnose(String topic, String description) {
 
         LearningRecord record = new LearningRecord();
-
         record.setTopic(topic);
         record.setDescription(description);
 
         learningRecordMapper.insert(record);
 
-        String message = "StudyAgent 已收到你的学习诊断请求";
+        String message =
+                aiService.diagnoseStudyProblem(topic, description);
 
         return new StudyResponse(
                 topic,
@@ -41,7 +46,8 @@ public class StudyService {
         List<LearningRecord> records =
                 learningRecordMapper.selectList(null);
 
-        List<LearningRecordResponse> responses = new ArrayList<>();
+        List<LearningRecordResponse> responses =
+                new ArrayList<>();
 
         for (LearningRecord record : records) {
 

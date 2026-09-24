@@ -9,3 +9,22 @@ Content-Type: application/json
 ###
 
 GET http://localhost:8080/api/study/records
+
+###
+
+POST http://localhost:8080/api/ai/chat
+Content-Type: application/json
+
+{
+  "message": "请用适合Java初学者的方式解释什么是依赖注入"
+}
+
+
+###
+POST http://localhost:8080/api/study/diagnose
+Content-Type: application/json
+
+{
+  "topic": "MySQL",
+  "description": "我不理解为什么数据库要设置主键，也不清楚 AUTO_INCREMENT 到底解决了什么问题"
+}
