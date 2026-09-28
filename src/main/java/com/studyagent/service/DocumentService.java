@@ -22,6 +22,12 @@ import java.util.Locale;
 import java.util.UUID;
 import com.studyagent.dto.KnowledgeDocumentResponse;
 import java.util.ArrayList;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 
 @Service
 public class DocumentService {
@@ -37,6 +43,24 @@ public class DocumentService {
 
         if (file.isEmpty()) {
             throw new IllegalArgumentException("上传文件不能为空");
+        }
+
+        String fileHash = calculateSha256(file);
+
+        KnowledgeDocument existingDocument =
+                knowledgeDocumentMapper.selectOne(
+                        new LambdaQueryWrapper<KnowledgeDocument>()
+                                .eq(
+                                        KnowledgeDocument::getFileHash,
+                                        fileHash
+                                )
+                );
+
+        if (existingDocument != null) {
+            throw new IllegalArgumentException(
+                    "该文件已经存在于知识库中，documentId="
+                            + existingDocument.getId()
+            );
         }
 
         Files.createDirectories(uploadDirectory);
@@ -71,6 +95,7 @@ public class DocumentService {
         document.setStoredFilename(storedFilename);
         document.setFileSize(file.getSize());
         document.setContentType(file.getContentType());
+        document.setFileHash(fileHash);
 
         knowledgeDocumentMapper.insert(document);
 
@@ -179,4 +204,67 @@ public class DocumentService {
         return responses;
     }
 
+    private String calculateSha256(MultipartFile file)
+            throws IOException {
+
+        try {
+            MessageDigest digest =
+                    MessageDigest.getInstance("SHA-256");
+
+            try (InputStream inputStream =
+                         file.getInputStream()) {
+
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+
+                while ((bytesRead =
+                        inputStream.read(buffer)) != -1) {
+
+                    digest.update(
+                            buffer,
+                            0,
+                            bytesRead
+                    );
+                }
+            }
+
+            return HexFormat.of()
+                    .formatHex(digest.digest());
+
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(
+                    "当前 Java 环境不支持 SHA-256",
+                    e
+            );
+        }
+    }
+
+    public void deleteDocument(Long documentId)
+            throws IOException {
+
+        KnowledgeDocument document =
+                knowledgeDocumentMapper.selectById(documentId);
+
+        if (document == null) {
+            throw new IllegalArgumentException(
+                    "知识库文档不存在，documentId="
+                            + documentId
+            );
+        }
+
+        vectorStoreService.removeByDocumentId(
+                documentId
+        );
+
+        Path filePath =
+                uploadDirectory.resolve(
+                        document.getStoredFilename()
+                );
+
+        Files.deleteIfExists(filePath);
+
+        knowledgeDocumentMapper.deleteById(
+                documentId
+        );
+    }
 }

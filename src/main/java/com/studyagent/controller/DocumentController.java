@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.util.List;
 import com.studyagent.dto.KnowledgeDocumentResponse;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 
 @RestController
@@ -36,5 +38,13 @@ public class DocumentController {
     @GetMapping
     public List<KnowledgeDocumentResponse> getAllDocuments() {
         return documentService.getAllDocuments();
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteDocument(
+            @PathVariable Long id
+    ) throws IOException {
+
+        documentService.deleteDocument(id);
     }
 }

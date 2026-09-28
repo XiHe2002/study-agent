@@ -17,6 +17,7 @@ public class KnowledgeDocument {
     private Long fileSize;
     private String contentType;
     private LocalDateTime createdAt;
+    private String fileHash;
 
     public KnowledgeDocument() {
     }
@@ -67,5 +68,13 @@ public class KnowledgeDocument {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getFileHash() {
+        return fileHash;
+    }
+
+    public void setFileHash(String fileHash) {
+        this.fileHash = fileHash;
     }
 }

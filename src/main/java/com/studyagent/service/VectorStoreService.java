@@ -20,6 +20,10 @@ import java.util.Map;
 import com.studyagent.dto.RetrievedChunkResponse;
 import dev.langchain4j.data.document.Metadata;
 
+import dev.langchain4j.store.embedding.filter.Filter;
+
+import static dev.langchain4j.store.embedding.filter.MetadataFilterBuilder.metadataKey;
+
 @Service
 public class VectorStoreService {
 
@@ -108,5 +112,16 @@ public class VectorStoreService {
         }
 
         return results;
+    }
+
+    public void removeByDocumentId(Long documentId) {
+
+        Filter filter =
+                metadataKey("documentId")
+                        .isEqualTo(documentId);
+
+        embeddingStore.removeAll(filter);
+
+        embeddingStore.serializeToFile(STORE_PATH);
     }
 }

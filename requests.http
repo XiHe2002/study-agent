@@ -50,3 +50,15 @@ Content-Type: application/json
 ###
 
 GET http://localhost:8080/api/documents
+
+###
+
+DELETE http://localhost:8080/api/documents/3
+
+###
+
+DELETE http://localhost:8080/api/documents/2
+
+###
+
+DELETE http://localhost:8080/api/documents/1
