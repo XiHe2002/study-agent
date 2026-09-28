@@ -17,10 +17,13 @@ import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
+import java.util.List;
+
 @Service
 public class DocumentService {
 
     private final Path uploadDirectory = Paths.get("uploads");
+    private final TextChunkService textChunkService;
 
     public DocumentUploadResponse save(MultipartFile file) throws IOException {
 
@@ -50,12 +53,15 @@ public class DocumentService {
 
         String content = extractText(targetPath, originalFilename);
 
+        List<String> chunks = textChunkService.split(content);
+
         return new DocumentUploadResponse(
                 originalFilename,
                 storedFilename,
                 file.getSize(),
                 file.getContentType(),
-                content
+                content,
+                chunks
         );
     }
 
@@ -96,5 +102,9 @@ public class DocumentService {
 
             return stripper.getText(document);
         }
+    }
+
+    public DocumentService(TextChunkService textChunkService) {
+        this.textChunkService = textChunkService;
     }
 }

@@ -1,5 +1,7 @@
 package com.studyagent.dto;
 
+import java.util.List;
+
 public class DocumentUploadResponse {
 
     private String originalFilename;
@@ -7,19 +9,22 @@ public class DocumentUploadResponse {
     private long size;
     private String contentType;
     private String content;
+    private List<String> chunks;
 
     public DocumentUploadResponse(
             String originalFilename,
             String storedFilename,
             long size,
             String contentType,
-            String content
+            String content,
+            List<String> chunks
     ) {
         this.originalFilename = originalFilename;
         this.storedFilename = storedFilename;
         this.size = size;
         this.contentType = contentType;
         this.content = content;
+        this.chunks = chunks;
     }
 
     public String getOriginalFilename() {
@@ -40,5 +45,8 @@ public class DocumentUploadResponse {
 
     public String getContent() {
         return content;
+    }
+    public List<String> getChunks() {
+        return chunks;
     }
 }
