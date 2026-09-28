@@ -18,12 +18,14 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.util.List;
+import dev.langchain4j.data.embedding.Embedding;
 
 @Service
 public class DocumentService {
 
     private final Path uploadDirectory = Paths.get("uploads");
     private final TextChunkService textChunkService;
+    private final EmbeddingService embeddingService;
 
     public DocumentUploadResponse save(MultipartFile file) throws IOException {
 
@@ -54,6 +56,11 @@ public class DocumentService {
         String content = extractText(targetPath, originalFilename);
 
         List<String> chunks = textChunkService.split(content);
+        List<Embedding> embeddings = embeddingService.embedAll(chunks);
+        int embeddingDimension =
+                embeddings.isEmpty()
+                        ? 0
+                        : embeddings.get(0).dimension();
 
         return new DocumentUploadResponse(
                 originalFilename,
@@ -61,9 +68,12 @@ public class DocumentService {
                 file.getSize(),
                 file.getContentType(),
                 content,
-                chunks
+                chunks,
+                embeddings.size(),
+                embeddingDimension
         );
     }
+
 
     private String extractText(
             Path filePath,
@@ -104,7 +114,11 @@ public class DocumentService {
         }
     }
 
-    public DocumentService(TextChunkService textChunkService) {
+    public DocumentService(
+            TextChunkService textChunkService,
+            EmbeddingService embeddingService
+    ) {
         this.textChunkService = textChunkService;
+        this.embeddingService = embeddingService;
     }
 }

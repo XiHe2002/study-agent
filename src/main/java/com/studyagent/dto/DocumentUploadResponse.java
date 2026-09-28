@@ -10,6 +10,8 @@ public class DocumentUploadResponse {
     private String contentType;
     private String content;
     private List<String> chunks;
+    private int embeddingCount;
+    private int embeddingDimension;
 
     public DocumentUploadResponse(
             String originalFilename,
@@ -17,7 +19,9 @@ public class DocumentUploadResponse {
             long size,
             String contentType,
             String content,
-            List<String> chunks
+            List<String> chunks,
+            int embeddingCount,
+            int embeddingDimension
     ) {
         this.originalFilename = originalFilename;
         this.storedFilename = storedFilename;
@@ -25,6 +29,8 @@ public class DocumentUploadResponse {
         this.contentType = contentType;
         this.content = content;
         this.chunks = chunks;
+        this.embeddingCount = embeddingCount;
+        this.embeddingDimension = embeddingDimension;
     }
 
     public String getOriginalFilename() {
@@ -48,5 +54,12 @@ public class DocumentUploadResponse {
     }
     public List<String> getChunks() {
         return chunks;
+    }
+    public int getEmbeddingCount() {
+        return embeddingCount;
+    }
+
+    public int getEmbeddingDimension() {
+        return embeddingDimension;
     }
 }
