@@ -1,24 +1,25 @@
 package com.studyagent.service;
 
 import com.studyagent.dto.DocumentUploadResponse;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import com.studyagent.entity.KnowledgeDocument;
+import com.studyagent.mapper.KnowledgeDocumentMapper;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Locale;
+import dev.langchain4j.data.embedding.Embedding;
 
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
-import dev.langchain4j.data.embedding.Embedding;
+import java.util.Locale;
+import java.util.UUID;;
 
 @Service
 public class DocumentService {
@@ -27,6 +28,8 @@ public class DocumentService {
     private final TextChunkService textChunkService;
     private final EmbeddingService embeddingService;
     private final VectorStoreService vectorStoreService;
+    private final KnowledgeDocumentMapper knowledgeDocumentMapper;
+
 
     public DocumentUploadResponse save(MultipartFile file) throws IOException {
 
@@ -58,6 +61,20 @@ public class DocumentService {
 
         List<String> chunks = textChunkService.split(content);
         List<Embedding> embeddings = embeddingService.embedAll(chunks);
+
+        KnowledgeDocument document =
+                new KnowledgeDocument();
+
+        document.setOriginalFilename(originalFilename);
+        document.setStoredFilename(storedFilename);
+        document.setFileSize(file.getSize());
+        document.setContentType(file.getContentType());
+
+        knowledgeDocumentMapper.insert(document);
+
+        Long documentId = document.getId();
+
+
         vectorStoreService.store(
                 chunks,
                 embeddings
@@ -75,7 +92,8 @@ public class DocumentService {
                 content,
                 chunks,
                 embeddings.size(),
-                embeddingDimension
+                embeddingDimension,
+                documentId
         );
     }
 
@@ -122,10 +140,15 @@ public class DocumentService {
     public DocumentService(
             TextChunkService textChunkService,
             EmbeddingService embeddingService,
-            VectorStoreService vectorStoreService
+            VectorStoreService vectorStoreService,
+            KnowledgeDocumentMapper knowledgeDocumentMapper
+
     ) {
         this.textChunkService = textChunkService;
         this.embeddingService = embeddingService;
         this.vectorStoreService = vectorStoreService;
+        this.knowledgeDocumentMapper = knowledgeDocumentMapper;
+
     }
+
 }
