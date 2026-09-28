@@ -46,3 +46,7 @@ Content-Type: application/json
 {
   "question": "这份资料要求设计几套不同的解决方案？"
 }
+
+###
+
+GET http://localhost:8080/api/documents

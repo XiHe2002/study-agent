@@ -19,7 +19,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;;
+import java.util.UUID;
+import com.studyagent.dto.KnowledgeDocumentResponse;
+import java.util.ArrayList;
 
 @Service
 public class DocumentService {
@@ -150,6 +152,31 @@ public class DocumentService {
         this.vectorStoreService = vectorStoreService;
         this.knowledgeDocumentMapper = knowledgeDocumentMapper;
 
+    }
+
+    public List<KnowledgeDocumentResponse> getAllDocuments() {
+
+        List<KnowledgeDocument> documents =
+                knowledgeDocumentMapper.selectList(null);
+
+        List<KnowledgeDocumentResponse> responses =
+                new ArrayList<>();
+
+        for (KnowledgeDocument document : documents) {
+
+            KnowledgeDocumentResponse response =
+                    new KnowledgeDocumentResponse(
+                            document.getId(),
+                            document.getOriginalFilename(),
+                            document.getFileSize(),
+                            document.getContentType(),
+                            document.getCreatedAt()
+                    );
+
+            responses.add(response);
+        }
+
+        return responses;
     }
 
 }
