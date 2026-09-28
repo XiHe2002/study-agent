@@ -29,4 +29,7 @@ public class EmbeddingService {
 
         return embeddings;
     }
+    public Embedding embed(String text) {
+        return embeddingModel.embed(text).content();
+    }
 }

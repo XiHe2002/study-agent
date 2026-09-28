@@ -26,6 +26,7 @@ public class DocumentService {
     private final Path uploadDirectory = Paths.get("uploads");
     private final TextChunkService textChunkService;
     private final EmbeddingService embeddingService;
+    private final VectorStoreService vectorStoreService;
 
     public DocumentUploadResponse save(MultipartFile file) throws IOException {
 
@@ -57,6 +58,10 @@ public class DocumentService {
 
         List<String> chunks = textChunkService.split(content);
         List<Embedding> embeddings = embeddingService.embedAll(chunks);
+        vectorStoreService.store(
+                chunks,
+                embeddings
+        );
         int embeddingDimension =
                 embeddings.isEmpty()
                         ? 0
@@ -116,9 +121,11 @@ public class DocumentService {
 
     public DocumentService(
             TextChunkService textChunkService,
-            EmbeddingService embeddingService
+            EmbeddingService embeddingService,
+            VectorStoreService vectorStoreService
     ) {
         this.textChunkService = textChunkService;
         this.embeddingService = embeddingService;
+        this.vectorStoreService = vectorStoreService;
     }
 }

@@ -28,3 +28,21 @@ Content-Type: application/json
   "topic": "MySQL",
   "description": "我不理解为什么数据库要设置主键，也不清楚 AUTO_INCREMENT 到底解决了什么问题"
 }
+
+###
+
+POST http://localhost:8080/api/search
+Content-Type: application/json
+
+{
+  "query": "这份资料要求设计几套不同的解决方案？"
+}
+
+###
+
+POST http://localhost:8080/api/rag/chat
+Content-Type: application/json
+
+{
+  "question": "这份资料要求设计几套不同的解决方案？"
+}
