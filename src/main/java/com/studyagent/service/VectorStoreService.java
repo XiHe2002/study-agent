@@ -6,19 +6,24 @@ import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.EmbeddingStore;
+import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class VectorStoreService {
 
-    private final EmbeddingStore<TextSegment> embeddingStore;
+    private final InMemoryEmbeddingStore<TextSegment> embeddingStore;
     private final EmbeddingService embeddingService;
+    private static final Path STORE_PATH =
+            Paths.get("data", "vector-store.json");
 
     public VectorStoreService(
-            EmbeddingStore<TextSegment> embeddingStore,
+            InMemoryEmbeddingStore<TextSegment> embeddingStore,
             EmbeddingService embeddingService
     ) {
         this.embeddingStore = embeddingStore;
@@ -40,6 +45,7 @@ public class VectorStoreService {
                 embeddings,
                 segments
         );
+        embeddingStore.serializeToFile(STORE_PATH);
     }
 
     public List<String> search(String query) {
