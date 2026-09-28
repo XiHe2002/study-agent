@@ -1,17 +1,18 @@
 package com.studyagent.dto;
 
 import java.util.List;
+import com.studyagent.dto.RetrievedChunkResponse;
 
 public class RagChatResponse {
 
     private String question;
     private String answer;
-    private List<String> sources;
+    private List<RetrievedChunkResponse> sources;
 
     public RagChatResponse(
             String question,
             String answer,
-            List<String> sources
+            List<RetrievedChunkResponse> sources
     ) {
         this.question = question;
         this.answer = answer;
@@ -26,7 +27,7 @@ public class RagChatResponse {
         return answer;
     }
 
-    public List<String> getSources() {
+    public List<RetrievedChunkResponse> getSources() {
         return sources;
     }
 }

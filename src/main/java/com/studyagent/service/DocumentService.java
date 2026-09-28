@@ -74,8 +74,9 @@ public class DocumentService {
 
         Long documentId = document.getId();
 
-
         vectorStoreService.store(
+                documentId,
+                originalFilename,
                 chunks,
                 embeddings
         );

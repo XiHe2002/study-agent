@@ -2,8 +2,11 @@ package com.studyagent.service;
 
 import com.studyagent.dto.RagChatResponse;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
+import java.util.stream.Collectors;
+
+import com.studyagent.dto.RetrievedChunkResponse;
+
 
 @Service
 public class RagService {
@@ -21,7 +24,7 @@ public class RagService {
 
     public RagChatResponse chat(String question) {
 
-        List<String> sources =
+        List<RetrievedChunkResponse> sources =
                 vectorStoreService.search(question);
 
         if (sources.isEmpty()) {
@@ -32,8 +35,9 @@ public class RagService {
             );
         }
 
-        String context =
-                String.join("\n\n---\n\n", sources);
+        String context = sources.stream()
+                .map(RetrievedChunkResponse::getContent)
+                .collect(Collectors.joining("\n\n---\n\n"));
 
         String prompt = """
                 你是 StudyAgent，一名学习辅助助手。

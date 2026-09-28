@@ -1,10 +1,11 @@
 package com.studyagent.controller;
 
+import com.studyagent.dto.RetrievedChunkResponse;
 import com.studyagent.dto.SearchRequest;
 import com.studyagent.service.VectorStoreService;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+import com.studyagent.dto.RetrievedChunkResponse;
 
 @RestController
 @RequestMapping("/api/search")
@@ -19,7 +20,7 @@ public class SearchController {
     }
 
     @PostMapping
-    public List<String> search(
+    public List<RetrievedChunkResponse> search(
             @RequestBody SearchRequest request
     ) {
         return vectorStoreService.search(

@@ -14,6 +14,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.langchain4j.data.document.Metadata;
+import java.util.Map;
+
+import com.studyagent.dto.RetrievedChunkResponse;
+import dev.langchain4j.data.document.Metadata;
+
 @Service
 public class VectorStoreService {
 
@@ -31,24 +37,41 @@ public class VectorStoreService {
     }
 
     public void store(
+            Long documentId,
+            String originalFilename,
             List<String> chunks,
             List<Embedding> embeddings
     ) {
 
         List<TextSegment> segments = new ArrayList<>();
 
-        for (String chunk : chunks) {
-            segments.add(TextSegment.from(chunk));
+        for (int i = 0; i < chunks.size(); i++) {
+
+            String chunk = chunks.get(i);
+
+            Metadata metadata = Metadata.from(
+                    Map.of(
+                            "documentId", documentId,
+                            "filename", originalFilename,
+                            "chunkIndex", i
+                    )
+            );
+
+            TextSegment segment =
+                    TextSegment.from(chunk, metadata);
+
+            segments.add(segment);
         }
 
         embeddingStore.addAll(
                 embeddings,
                 segments
         );
+
         embeddingStore.serializeToFile(STORE_PATH);
     }
 
-    public List<String> search(String query) {
+    public List<RetrievedChunkResponse> search(String query) {
 
         Embedding queryEmbedding =
                 embeddingService.embed(query);
@@ -63,17 +86,27 @@ public class VectorStoreService {
         EmbeddingSearchResult<TextSegment> result =
                 embeddingStore.search(request);
 
-        List<String> matchedTexts =
+        List<RetrievedChunkResponse> results =
                 new ArrayList<>();
 
         for (EmbeddingMatch<TextSegment> match
                 : result.matches()) {
 
-            matchedTexts.add(
-                    match.embedded().text()
-            );
+            TextSegment segment = match.embedded();
+            Metadata metadata = segment.metadata();
+
+            RetrievedChunkResponse response =
+                    new RetrievedChunkResponse(
+                            metadata.getLong("documentId"),
+                            metadata.getString("filename"),
+                            metadata.getInteger("chunkIndex"),
+                            match.score(),
+                            segment.text()
+                    );
+
+            results.add(response);
         }
 
-        return matchedTexts;
+        return results;
     }
 }
