@@ -82,3 +82,11 @@ Content-Type: application/json
   "questionId": 2,
   "answer": "三套方案不能只是调整相同模型的参数，因为它们应该采用本质不同的建模思路，例如机理模型、数据驱动模型和优化模型。"
 }
+
+###
+
+GET http://localhost:8080/api/quiz/attempts
+
+###
+
+GET http://localhost:8080/api/quiz/weak-points

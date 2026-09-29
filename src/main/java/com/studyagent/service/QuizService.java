@@ -23,6 +23,16 @@ import com.studyagent.mapper.QuizAttemptMapper;
 import com.studyagent.dto.AnswerAnalysisResponse;
 import com.studyagent.dto.QuizSubmitResponse;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.studyagent.dto.QuizAttemptResponse;
+
+import java.util.ArrayList;
+
+import com.studyagent.dto.WeakPointSummaryResponse;
+
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 public class QuizService {
 
@@ -299,5 +309,105 @@ public class QuizService {
                 analysis.getFeedback(),
                 analysis.getWeakPoints()
         );
+    }
+
+    public List<QuizAttemptResponse> getAttempts() {
+
+        List<QuizAttempt> attempts =
+                quizAttemptMapper.selectList(null);
+
+        List<QuizAttemptResponse> responses =
+                new ArrayList<>();
+
+        for (QuizAttempt attempt : attempts) {
+
+            QuizQuestion question =
+                    quizQuestionMapper.selectById(
+                            attempt.getQuestionId()
+                    );
+
+            if (question == null) {
+                throw new IllegalStateException(
+                        "作答记录对应的题目不存在，questionId="
+                                + attempt.getQuestionId()
+                );
+            }
+
+            List<String> weakPoints;
+
+            if (attempt.getWeakPoints() == null
+                    || attempt.getWeakPoints().isBlank()) {
+
+                weakPoints = new ArrayList<>();
+
+            } else {
+
+                try {
+                    weakPoints = objectMapper.readValue(
+                            attempt.getWeakPoints(),
+                            new TypeReference<List<String>>() {
+                            }
+                    );
+                } catch (JsonProcessingException e) {
+                    throw new IllegalStateException(
+                            "薄弱知识点 JSON 解析失败，attemptId="
+                                    + attempt.getId(),
+                            e
+                    );
+                }
+            }
+
+            QuizAttemptResponse response =
+                    new QuizAttemptResponse(
+                            attempt.getId(),
+                            attempt.getQuestionId(),
+                            question.getQuestionText(),
+                            attempt.getUserAnswer(),
+                            attempt.getScore(),
+                            attempt.getFeedback(),
+                            weakPoints,
+                            attempt.getCreatedAt()
+                    );
+
+            responses.add(response);
+        }
+
+        return responses;
+    }
+
+    public List<WeakPointSummaryResponse> getWeakPointSummary() {
+
+        List<QuizAttemptResponse> attempts =
+                getAttempts();
+
+        Map<String, Integer> counts =
+                new HashMap<>();
+
+        for (QuizAttemptResponse attempt : attempts) {
+
+            for (String weakPoint : attempt.getWeakPoints()) {
+
+                counts.merge(
+                        weakPoint,
+                        1,
+                        Integer::sum
+                );
+            }
+        }
+
+        return counts.entrySet()
+                .stream()
+                .sorted(
+                        Map.Entry
+                                .<String, Integer>comparingByValue()
+                                .reversed()
+                )
+                .map(entry ->
+                        new WeakPointSummaryResponse(
+                                entry.getKey(),
+                                entry.getValue()
+                        )
+                )
+                .toList();
     }
 }

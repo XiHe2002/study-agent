@@ -8,6 +8,12 @@ import org.springframework.web.bind.annotation.*;
 import com.studyagent.dto.QuizSubmitRequest;
 import com.studyagent.dto.QuizSubmitResponse;
 
+import com.studyagent.dto.QuizAttemptResponse;
+
+import java.util.List;
+
+import com.studyagent.dto.WeakPointSummaryResponse;
+
 @RestController
 @RequestMapping("/api/quiz")
 public class QuizController {
@@ -38,5 +44,15 @@ public class QuizController {
                 request.getQuestionId(),
                 request.getAnswer()
         );
+    }
+
+    @GetMapping("/attempts")
+    public List<QuizAttemptResponse> getAttempts() {
+        return quizService.getAttempts();
+    }
+
+    @GetMapping("/weak-points")
+    public List<WeakPointSummaryResponse> getWeakPoints() {
+        return quizService.getWeakPointSummary();
     }
 }
