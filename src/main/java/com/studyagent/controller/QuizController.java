@@ -55,4 +55,9 @@ public class QuizController {
     public List<WeakPointSummaryResponse> getWeakPoints() {
         return quizService.getWeakPointSummary();
     }
+
+    @GetMapping("/mistakes")
+    public List<QuizAttemptResponse> getMistakes() {
+        return quizService.getMistakeAttempts();
+    }
 }

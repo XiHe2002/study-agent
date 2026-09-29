@@ -410,4 +410,12 @@ public class QuizService {
                 )
                 .toList();
     }
+
+    public List<QuizAttemptResponse> getMistakeAttempts() {
+
+        return getAttempts()
+                .stream()
+                .filter(attempt -> attempt.getScore() < 60)
+                .toList();
+    }
 }
