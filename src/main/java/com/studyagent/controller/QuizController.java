@@ -5,6 +5,9 @@ import com.studyagent.dto.QuizGenerateResponse;
 import com.studyagent.service.QuizService;
 import org.springframework.web.bind.annotation.*;
 
+import com.studyagent.dto.QuizSubmitRequest;
+import com.studyagent.dto.QuizSubmitResponse;
+
 @RestController
 @RequestMapping("/api/quiz")
 public class QuizController {
@@ -23,6 +26,17 @@ public class QuizController {
         return quizService.generateQuiz(
                 request.getTopic(),
                 request.getQuestionCount()
+        );
+    }
+
+    @PostMapping("/submit")
+    public QuizSubmitResponse submitAnswer(
+            @RequestBody QuizSubmitRequest request
+    ) {
+
+        return quizService.submitAnswer(
+                request.getQuestionId(),
+                request.getAnswer()
         );
     }
 }

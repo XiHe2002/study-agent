@@ -2,6 +2,7 @@ package com.studyagent.service;
 
 import com.studyagent.dto.QuizGenerateResponse;
 import com.studyagent.dto.RetrievedChunkResponse;
+import com.studyagent.mapper.QuizAttemptMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,21 +12,41 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.studyagent.dto.QuizContentResponse;
 
+import com.studyagent.entity.QuizSession;
+import com.studyagent.entity.QuizQuestion;
+import com.studyagent.mapper.QuizSessionMapper;
+import com.studyagent.mapper.QuizQuestionMapper;
+import com.studyagent.dto.QuizQuestionResponse;
+
+import com.studyagent.entity.QuizAttempt;
+import com.studyagent.mapper.QuizAttemptMapper;
+import com.studyagent.dto.AnswerAnalysisResponse;
+import com.studyagent.dto.QuizSubmitResponse;
+
 @Service
 public class QuizService {
 
     private final VectorStoreService vectorStoreService;
     private final AiService aiService;
     private final ObjectMapper objectMapper;
+    private final QuizSessionMapper quizSessionMapper;
+    private final QuizQuestionMapper quizQuestionMapper;
+    private final QuizAttemptMapper quizAttemptMapper;
 
     public QuizService(
             VectorStoreService vectorStoreService,
             AiService aiService,
-            ObjectMapper objectMapper
+            ObjectMapper objectMapper,
+            QuizSessionMapper quizSessionMapper,
+            QuizQuestionMapper quizQuestionMapper,
+            QuizAttemptMapper quizAttemptMapper
     ) {
         this.vectorStoreService = vectorStoreService;
         this.aiService = aiService;
         this.objectMapper = objectMapper;
+        this.quizSessionMapper = quizSessionMapper;
+        this.quizQuestionMapper = quizQuestionMapper;
+        this.quizAttemptMapper = quizAttemptMapper;
     }
 
     public QuizGenerateResponse generateQuiz(
@@ -105,10 +126,178 @@ public class QuizService {
                     e
             );
         }
+
+        QuizSession quizSession = new QuizSession();
+        quizSession.setTopic(topic);
+
+        quizSessionMapper.insert(quizSession);
+
+        Long quizId = quizSession.getId();
+
+
+        List<QuizQuestionResponse> questions =
+                quizContent.getQuestions();
+
+        for (int i = 0; i < questions.size(); i++) {
+
+            QuizQuestionResponse questionResponse =
+                    questions.get(i);
+
+            QuizQuestion quizQuestion =
+                    new QuizQuestion();
+
+            quizQuestion.setQuizId(quizId);
+            quizQuestion.setQuestionText(
+                    questionResponse.getQuestion()
+            );
+            quizQuestion.setReferenceAnswer(
+                    questionResponse.getReferenceAnswer()
+            );
+            quizQuestion.setQuestionOrder(i + 1);
+
+            quizQuestionMapper.insert(quizQuestion);
+
+            questionResponse.setQuestionId(
+                    quizQuestion.getId()
+            );
+        }
+
         return new QuizGenerateResponse(
+                quizId,
                 topic,
-                quizContent.getQuestions(),
+                questions,
                 sources
+        );
+    }
+
+    public QuizSubmitResponse submitAnswer(
+            Long questionId,
+            String userAnswer
+    ) {
+
+        if (questionId == null) {
+            throw new IllegalArgumentException(
+                    "questionId 不能为空"
+            );
+        }
+
+        if (userAnswer == null || userAnswer.isBlank()) {
+            throw new IllegalArgumentException(
+                    "用户答案不能为空"
+            );
+        }
+
+        QuizQuestion quizQuestion =
+                quizQuestionMapper.selectById(questionId);
+
+        if (quizQuestion == null) {
+            throw new IllegalArgumentException(
+                    "题目不存在，questionId=" + questionId
+            );
+        }
+
+        String prompt = """
+            你是 StudyAgent 的学习答案诊断模块。
+
+            请根据【题目】、【参考答案】和【用户答案】，
+            分析用户对该知识点的掌握情况。
+
+            评分要求：
+            1. score 必须是 0 到 100 之间的整数。
+            2. 不要求用户答案与参考答案逐字一致，应根据核心知识点是否正确、完整来评分。
+            3. feedback 要明确指出用户回答正确的地方、遗漏的地方以及如何改进。
+            4. weakPoints 只填写用户真正存在的薄弱知识点。
+            5. 如果用户回答已经完整正确，weakPoints 返回空数组。
+            6. 不要因为表达方式不同而机械扣分。
+
+            只允许返回下面格式的 JSON：
+
+            {
+              "score": 80,
+              "feedback": "具体反馈内容",
+              "weakPoints": [
+                "薄弱知识点1",
+                "薄弱知识点2"
+              ]
+            }
+
+            注意：
+            1. 只返回 JSON。
+            2. 不要返回 Markdown。
+            3. 不要使用 ```json 代码块。
+            4. 不要在 JSON 前后增加任何说明。
+
+            【题目】
+            %s
+
+            【参考答案】
+            %s
+
+            【用户答案】
+            %s
+            """.formatted(
+                quizQuestion.getQuestionText(),
+                quizQuestion.getReferenceAnswer(),
+                userAnswer
+        );
+
+        String analysisJson =
+                aiService.chat(prompt);
+
+        AnswerAnalysisResponse analysis;
+
+        try {
+            analysis = objectMapper.readValue(
+                    analysisJson,
+                    AnswerAnalysisResponse.class
+            );
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException(
+                    "AI 返回的答案分析 JSON 格式不正确",
+                    e
+            );
+        }
+
+        if (analysis.getScore() == null
+                || analysis.getScore() < 0
+                || analysis.getScore() > 100) {
+
+            throw new IllegalStateException(
+                    "AI 返回的评分不合法"
+            );
+        }
+
+        String weakPointsJson;
+
+        try {
+            weakPointsJson =
+                    objectMapper.writeValueAsString(
+                            analysis.getWeakPoints()
+                    );
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException(
+                    "薄弱知识点序列化失败",
+                    e
+            );
+        }
+
+        QuizAttempt attempt =
+                new QuizAttempt();
+
+        attempt.setQuestionId(questionId);
+        attempt.setUserAnswer(userAnswer);
+        attempt.setScore(analysis.getScore());
+        attempt.setFeedback(analysis.getFeedback());
+        attempt.setWeakPoints(weakPointsJson);
+
+        quizAttemptMapper.insert(attempt);
+
+        return new QuizSubmitResponse(
+                attempt.getId(),
+                questionId,
+                analysis.getScore(),
+                analysis.getFeedback(),
+                analysis.getWeakPoints()
         );
     }
 }

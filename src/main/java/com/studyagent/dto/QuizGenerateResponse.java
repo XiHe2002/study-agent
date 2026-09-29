@@ -7,12 +7,15 @@ public class QuizGenerateResponse {
     private String topic;
     private List<QuizQuestionResponse> questions;
     private List<RetrievedChunkResponse> sources;
+    private Long quizId;
 
     public QuizGenerateResponse(
+            Long quizId,
             String topic,
             List<QuizQuestionResponse> questions,
             List<RetrievedChunkResponse> sources
     ) {
+        this.quizId = quizId;
         this.topic = topic;
         this.questions = questions;
         this.sources = sources;
@@ -29,4 +32,9 @@ public class QuizGenerateResponse {
     public List<RetrievedChunkResponse> getSources() {
         return sources;
     }
+
+    public Long getQuizId() {
+        return quizId;
+    }
+
 }
