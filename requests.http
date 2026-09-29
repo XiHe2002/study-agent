@@ -62,3 +62,13 @@ DELETE http://localhost:8080/api/documents/2
 ###
 
 DELETE http://localhost:8080/api/documents/1
+
+###
+
+POST http://localhost:8080/api/quiz/generate
+Content-Type: application/json
+
+{
+  "topic": "数学建模方案设计",
+  "questionCount": 3
+}
