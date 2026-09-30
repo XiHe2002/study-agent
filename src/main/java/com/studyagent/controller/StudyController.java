@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
+import com.studyagent.dto.StudyProfileResponse;
+
 @RestController
 @RequestMapping("/api/study")
 public class StudyController {
@@ -35,5 +37,10 @@ public class StudyController {
     @GetMapping("/records")
     public List<LearningRecordResponse> getAllRecords() {
         return studyService.getAllRecords();
+    }
+
+    @GetMapping("/profile")
+    public StudyProfileResponse getStudyProfile() {
+        return studyService.getStudyProfile();
     }
 }

@@ -151,3 +151,15 @@ GET http://localhost:8080/api/quiz/weak-points
 
 ###
 GET http://localhost:8080/api/quiz/mistakes
+
+###
+POST http://localhost:8080/api/quiz/submit
+Content-Type: application/json
+
+{
+  "questionId": 7,
+  "answer": "一套完整方案需要包含五个部分：第一，方案名称与核心思想，用一句话说明方案的基本思路；第二，数学模型或算法，说明采用的模型、公式、算法或优化方法；第三，求解步骤，需要覆盖数据预处理、模型建立、求解和结果分析的完整流程；第四，优点与缺点，需要分析方案的优势、局限性、对数据的要求以及计算复杂度等；第五，适用场景，需要说明该方案更适合解决题目中的哪部分问题，或者在什么条件下更优。"
+}
+
+###
+GET http://localhost:8080/api/study/profile
