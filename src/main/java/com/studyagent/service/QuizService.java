@@ -216,13 +216,19 @@ public class QuizService {
                 请根据【题目】、【参考答案】和【用户答案】，
                 分析用户对该知识点的掌握情况。
                 
+               
                 评分要求：
                 1. score 必须是 0 到 100 之间的整数。
                 2. 不要求用户答案与参考答案逐字一致，应根据核心知识点是否正确、完整来评分。
                 3. feedback 要明确指出用户回答正确的地方、遗漏的地方以及如何改进。
-                4. weakPoints 只填写用户真正存在的薄弱知识点。
-                5. 如果用户回答已经完整正确，weakPoints 返回空数组。
-                6. 不要因为表达方式不同而机械扣分。
+                4. weakPoints 用自然语言详细描述用户真正存在的薄弱之处。
+                5. weakPointTags 用简短、稳定的知识点名称表示这些薄弱点，用于系统统计。
+                6. weakPointTags 不要写“掌握不完整”“理解不清楚”“遗漏”等状态描述，只保留知识点名称。
+                7. 相同或高度相近的知识点应尽量使用相同标签。
+                8. 如果用户回答已经完整正确，weakPoints 和 weakPointTags 都返回空数组。
+                9. 不要因为表达方式不同而机械扣分。
+                10. weakPointTags 每个标签尽量控制在 4 到 12 个汉字，例如：
+                    “方案必备组成部分”“求解步骤完整流程”“方案优缺点”“适用场景”。
                 
                 只允许返回下面格式的 JSON：
                 
@@ -230,8 +236,12 @@ public class QuizService {
                   "score": 80,
                   "feedback": "具体反馈内容",
                   "weakPoints": [
-                    "薄弱知识点1",
-                    "薄弱知识点2"
+                    "详细薄弱点描述1",
+                    "详细薄弱点描述2"
+                  ],
+                  "weakPointTags": [
+                    "标准知识点标签1",
+                    "标准知识点标签2"
                   ]
                 }
                 
@@ -281,6 +291,14 @@ public class QuizService {
             );
         }
 
+        if (analysis.getWeakPoints() == null) {
+            analysis.setWeakPoints(new ArrayList<>());
+        }
+
+        if (analysis.getWeakPointTags() == null) {
+            analysis.setWeakPointTags(new ArrayList<>());
+        }
+
         String weakPointsJson;
 
         try {
@@ -295,6 +313,20 @@ public class QuizService {
             );
         }
 
+        String weakPointTagsJson;
+
+        try {
+            weakPointTagsJson =
+                    objectMapper.writeValueAsString(
+                            analysis.getWeakPointTags()
+                    );
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException(
+                    "薄弱知识点标签序列化失败",
+                    e
+            );
+        }
+
         QuizAttempt attempt =
                 new QuizAttempt();
 
@@ -303,6 +335,7 @@ public class QuizService {
         attempt.setScore(analysis.getScore());
         attempt.setFeedback(analysis.getFeedback());
         attempt.setWeakPoints(weakPointsJson);
+        attempt.setWeakPointTags(weakPointTagsJson);
 
         quizAttemptMapper.insert(attempt);
 
@@ -311,7 +344,8 @@ public class QuizService {
                 questionId,
                 analysis.getScore(),
                 analysis.getFeedback(),
-                analysis.getWeakPoints()
+                analysis.getWeakPoints(),
+                analysis.getWeakPointTags()
         );
     }
 
@@ -361,6 +395,30 @@ public class QuizService {
                 }
             }
 
+            List<String> weakPointTags;
+
+            if (attempt.getWeakPointTags() == null
+                    || attempt.getWeakPointTags().isBlank()) {
+
+                weakPointTags = new ArrayList<>();
+
+            } else {
+
+                try {
+                    weakPointTags = objectMapper.readValue(
+                            attempt.getWeakPointTags(),
+                            new TypeReference<List<String>>() {
+                            }
+                    );
+                } catch (JsonProcessingException e) {
+                    throw new IllegalStateException(
+                            "薄弱知识点标签 JSON 解析失败，attemptId="
+                                    + attempt.getId(),
+                            e
+                    );
+                }
+            }
+
             QuizAttemptResponse response =
                     new QuizAttemptResponse(
                             attempt.getId(),
@@ -370,6 +428,7 @@ public class QuizService {
                             attempt.getScore(),
                             attempt.getFeedback(),
                             weakPoints,
+                            weakPointTags,
                             attempt.getCreatedAt()
                     );
 
@@ -389,10 +448,15 @@ public class QuizService {
 
         for (QuizAttemptResponse attempt : attempts) {
 
-            for (String weakPoint : attempt.getWeakPoints()) {
+            for (String weakPointTag : attempt.getWeakPointTags()) {
+
+                if (weakPointTag == null
+                        || weakPointTag.isBlank()) {
+                    continue;
+                }
 
                 counts.merge(
-                        weakPoint,
+                        weakPointTag,
                         1,
                         Integer::sum
                 );

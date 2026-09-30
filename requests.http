@@ -122,3 +122,29 @@ Content-Type: application/json
   "attemptId": 1,
   "questionCount": 1
 }
+
+
+###
+POST http://localhost:8080/api/quiz/submit
+Content-Type: application/json
+
+{
+  "questionId": 7,
+  "answer": "每套方案需要包含方案名称与核心思想、数学模型或算法、求解步骤。求解步骤需要包括数据预处理、模型建立、求解和结果分析。"
+}
+
+
+###
+POST http://localhost:8080/api/quiz/submit
+Content-Type: application/json
+
+{
+  "questionId": 7,
+  "answer": "每套方案需要包含方案名称与核心思想、数学模型或算法、求解步骤。求解步骤需要包括数据预处理、模型建立、求解和结果分析。"
+}
+
+###
+GET http://localhost:8080/api/quiz/attempts
+
+###
+GET http://localhost:8080/api/quiz/weak-points

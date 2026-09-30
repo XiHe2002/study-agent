@@ -7,6 +7,7 @@ public class AnswerAnalysisResponse {
     private Integer score;
     private String feedback;
     private List<String> weakPoints;
+    private List<String> weakPointTags;
 
     public AnswerAnalysisResponse() {
     }
@@ -33,5 +34,13 @@ public class AnswerAnalysisResponse {
 
     public void setWeakPoints(List<String> weakPoints) {
         this.weakPoints = weakPoints;
+    }
+
+    public List<String> getWeakPointTags() {
+        return weakPointTags;
+    }
+
+    public void setWeakPointTags(List<String> weakPointTags) {
+        this.weakPointTags = weakPointTags;
     }
 }

@@ -9,19 +9,22 @@ public class QuizSubmitResponse {
     private Integer score;
     private String feedback;
     private List<String> weakPoints;
+    private List<String> weakPointTags;
 
     public QuizSubmitResponse(
             Long attemptId,
             Long questionId,
             Integer score,
             String feedback,
-            List<String> weakPoints
+            List<String> weakPoints,
+            List<String> weakPointTags
     ) {
         this.attemptId = attemptId;
         this.questionId = questionId;
         this.score = score;
         this.feedback = feedback;
         this.weakPoints = weakPoints;
+        this.weakPointTags = weakPointTags;
     }
 
     public Long getAttemptId() {
@@ -42,5 +45,9 @@ public class QuizSubmitResponse {
 
     public List<String> getWeakPoints() {
         return weakPoints;
+    }
+
+    public List<String> getWeakPointTags() {
+        return weakPointTags;
     }
 }

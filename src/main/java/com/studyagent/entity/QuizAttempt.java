@@ -21,6 +21,7 @@ public class QuizAttempt {
     private String feedback;
 
     private String weakPoints;
+    private String weakPointTags;
 
     private LocalDateTime createdAt;
 
@@ -78,5 +79,13 @@ public class QuizAttempt {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getWeakPointTags() {
+        return weakPointTags;
+    }
+
+    public void setWeakPointTags(String weakPointTags) {
+        this.weakPointTags = weakPointTags;
     }
 }

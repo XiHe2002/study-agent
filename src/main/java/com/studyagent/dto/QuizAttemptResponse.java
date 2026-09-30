@@ -12,6 +12,7 @@ public class QuizAttemptResponse {
     private Integer score;
     private String feedback;
     private List<String> weakPoints;
+    private List<String> weakPointTags;
     private LocalDateTime createdAt;
 
     public QuizAttemptResponse(
@@ -22,6 +23,7 @@ public class QuizAttemptResponse {
             Integer score,
             String feedback,
             List<String> weakPoints,
+            List<String> weakPointTags,
             LocalDateTime createdAt
     ) {
         this.attemptId = attemptId;
@@ -31,6 +33,7 @@ public class QuizAttemptResponse {
         this.score = score;
         this.feedback = feedback;
         this.weakPoints = weakPoints;
+        this.weakPointTags = weakPointTags;
         this.createdAt = createdAt;
     }
 
@@ -64,5 +67,9 @@ public class QuizAttemptResponse {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public List<String> getWeakPointTags() {
+        return weakPointTags;
     }
 }
