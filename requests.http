@@ -148,3 +148,6 @@ GET http://localhost:8080/api/quiz/attempts
 
 ###
 GET http://localhost:8080/api/quiz/weak-points
+
+###
+GET http://localhost:8080/api/quiz/mistakes

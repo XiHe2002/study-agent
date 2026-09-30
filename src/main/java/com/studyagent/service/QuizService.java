@@ -481,9 +481,38 @@ public class QuizService {
 
     public List<QuizAttemptResponse> getMistakeAttempts() {
 
-        return getAttempts()
+        List<QuizAttemptResponse> attempts =
+                getAttempts();
+
+        Map<Long, QuizAttemptResponse> latestByQuestion =
+                new HashMap<>();
+
+        for (QuizAttemptResponse attempt : attempts) {
+
+            latestByQuestion.merge(
+                    attempt.getQuestionId(),
+                    attempt,
+                    (oldAttempt, newAttempt) ->
+                            newAttempt.getAttemptId()
+                                    > oldAttempt.getAttemptId()
+                                    ? newAttempt
+                                    : oldAttempt
+            );
+        }
+
+        return latestByQuestion.values()
                 .stream()
-                .filter(attempt -> attempt.getScore() < 60)
+                .filter(attempt ->
+                        attempt.getScore() < 60
+                                || !attempt.getWeakPointTags().isEmpty()
+                )
+                .sorted(
+                        (a, b) ->
+                                Long.compare(
+                                        b.getAttemptId(),
+                                        a.getAttemptId()
+                                )
+                )
                 .toList();
     }
 
