@@ -14,6 +14,11 @@ import java.util.List;
 
 import com.studyagent.dto.WeakPointSummaryResponse;
 
+import com.studyagent.dto.QuizReviewRequest;
+import com.studyagent.dto.QuizReviewResponse;
+
+import com.studyagent.dto.QuizReviewGenerateRequest;
+
 @RestController
 @RequestMapping("/api/quiz")
 public class QuizController {
@@ -59,5 +64,25 @@ public class QuizController {
     @GetMapping("/mistakes")
     public List<QuizAttemptResponse> getMistakes() {
         return quizService.getMistakeAttempts();
+    }
+
+    @PostMapping("/review")
+    public QuizReviewResponse reviewMistake(
+            @RequestBody QuizReviewRequest request
+    ) {
+        return quizService.generateReview(
+                request.getAttemptId()
+        );
+    }
+
+    @PostMapping("/review/generate")
+    public QuizGenerateResponse generateReviewQuiz(
+            @RequestBody QuizReviewGenerateRequest request
+    ) {
+
+        return quizService.generateReviewQuiz(
+                request.getAttemptId(),
+                request.getQuestionCount()
+        );
     }
 }
