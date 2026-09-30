@@ -1,7 +1,6 @@
 package com.studyagent.service;
 
-import com.studyagent.dto.QuizGenerateResponse;
-import com.studyagent.dto.RetrievedChunkResponse;
+import com.studyagent.dto.*;
 import com.studyagent.mapper.QuizAttemptMapper;
 import org.springframework.stereotype.Service;
 
@@ -10,33 +9,23 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.studyagent.dto.QuizContentResponse;
 
 import com.studyagent.entity.QuizSession;
 import com.studyagent.entity.QuizQuestion;
 import com.studyagent.mapper.QuizSessionMapper;
 import com.studyagent.mapper.QuizQuestionMapper;
-import com.studyagent.dto.QuizQuestionResponse;
 
 import com.studyagent.entity.QuizAttempt;
 import com.studyagent.mapper.QuizAttemptMapper;
-import com.studyagent.dto.AnswerAnalysisResponse;
-import com.studyagent.dto.QuizSubmitResponse;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.studyagent.dto.QuizAttemptResponse;
 
 import java.util.ArrayList;
-
-import com.studyagent.dto.WeakPointSummaryResponse;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.studyagent.dto.QuizReviewResponse;
-
-import com.studyagent.dto.QuizGenerateResponse;
-import com.studyagent.dto.QuizQuestionResponse;
+import com.studyagent.dto.QuizQuestionViewResponse;
 
 @Service
 public class QuizService {
@@ -177,10 +166,20 @@ public class QuizService {
             );
         }
 
+        List<QuizQuestionViewResponse> questionViews =
+                questions.stream()
+                        .map(question ->
+                                new QuizQuestionViewResponse(
+                                        question.getQuestionId(),
+                                        question.getQuestion()
+                                )
+                        )
+                        .toList();
+
         return new QuizGenerateResponse(
                 quizId,
                 topic,
-                questions,
+                questionViews,
                 sources
         );
     }
@@ -739,11 +738,20 @@ public class QuizService {
                     quizQuestion.getId()
             );
         }
+        List<QuizQuestionViewResponse> questionViews =
+                questions.stream()
+                        .map(question ->
+                                new QuizQuestionViewResponse(
+                                        question.getQuestionId(),
+                                        question.getQuestion()
+                                )
+                        )
+                        .toList();
 
         return new QuizGenerateResponse(
                 quizId,
                 reviewTopic,
-                questions,
+                questionViews,
                 sources
         );
 

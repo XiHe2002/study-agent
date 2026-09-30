@@ -113,3 +113,12 @@ Content-Type: application/json
   "attemptId": 1,
   "questionCount": 3
 }
+
+###
+POST http://localhost:8080/api/quiz/review/generate
+Content-Type: application/json
+
+{
+  "attemptId": 1,
+  "questionCount": 1
+}

@@ -5,14 +5,14 @@ import java.util.List;
 public class QuizGenerateResponse {
 
     private String topic;
-    private List<QuizQuestionResponse> questions;
+    private List<QuizQuestionViewResponse> questions;
     private List<RetrievedChunkResponse> sources;
     private Long quizId;
 
     public QuizGenerateResponse(
             Long quizId,
             String topic,
-            List<QuizQuestionResponse> questions,
+            List<QuizQuestionViewResponse> questions,
             List<RetrievedChunkResponse> sources
     ) {
         this.quizId = quizId;
@@ -21,13 +21,14 @@ public class QuizGenerateResponse {
         this.sources = sources;
     }
 
+    public List<QuizQuestionViewResponse> getQuestions() {
+        return questions;
+    }
+
     public String getTopic() {
         return topic;
     }
 
-    public List<QuizQuestionResponse> getQuestions() {
-        return questions;
-    }
 
     public List<RetrievedChunkResponse> getSources() {
         return sources;
