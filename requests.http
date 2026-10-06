@@ -181,3 +181,36 @@ Content-Type: text/plain
 
 ###
 DELETE http://localhost:8080/api/documents/5
+
+### Study Agent - 学习画像 Tool Calling 测试
+POST http://localhost:8080/api/agent/chat
+Content-Type: application/json
+
+{
+  "message": "请查看我当前真实的学习情况，并告诉我一共做过多少道不同的题、已经掌握多少道、还有多少道没有掌握。不要猜测，请根据我的学习数据回答。"
+}
+
+### Study Agent - 当前错题 Tool Calling
+POST http://localhost:8080/api/agent/chat
+Content-Type: application/json
+
+{
+  "message": "请根据我的真实学习数据，告诉我当前具体还有哪道题没有掌握。请告诉我题目内容、最近一次得分和主要薄弱点，不要只告诉我还有几道题。"
+}
+
+### Study Agent - 自动生成针对性复习题
+POST http://localhost:8080/api/agent/chat
+Content-Type: application/json
+
+{
+  "message": "请查看我当前还没有掌握的题目，并针对这道错题给我生成 1 道复习题。请根据我的真实错题记录生成，不要凭空出题。"
+}
+
+
+### Study Agent - 操作型 Tool 回归测试
+POST http://localhost:8080/api/agent/chat
+Content-Type: application/json
+
+{
+  "message": "请查看我当前还没有掌握的题目，并针对这道错题给我生成 1 道新的复习题。不要给我参考答案或完整提示，我想先自己作答。"
+}
