@@ -9,6 +9,7 @@ import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import org.springframework.stereotype.Service;
 
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -27,13 +28,11 @@ import static dev.langchain4j.store.embedding.filter.MetadataFilterBuilder.metad
 @Service
 public class VectorStoreService {
 
-    private final InMemoryEmbeddingStore<TextSegment> embeddingStore;
+    private final EmbeddingStore<TextSegment> embeddingStore;
     private final EmbeddingService embeddingService;
-    private static final Path STORE_PATH =
-            Paths.get("data", "vector-store.json");
 
     public VectorStoreService(
-            InMemoryEmbeddingStore<TextSegment> embeddingStore,
+            EmbeddingStore<TextSegment> embeddingStore,
             EmbeddingService embeddingService
     ) {
         this.embeddingStore = embeddingStore;
@@ -72,7 +71,7 @@ public class VectorStoreService {
                 segments
         );
 
-        embeddingStore.serializeToFile(STORE_PATH);
+
     }
 
     public List<RetrievedChunkResponse> search(String query) {
@@ -122,6 +121,5 @@ public class VectorStoreService {
 
         embeddingStore.removeAll(filter);
 
-        embeddingStore.serializeToFile(STORE_PATH);
     }
 }

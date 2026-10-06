@@ -163,3 +163,21 @@ Content-Type: application/json
 
 ###
 GET http://localhost:8080/api/study/profile
+
+###
+DELETE http://localhost:8080/api/documents/4
+
+### 上传知识库文档
+POST http://localhost:8080/api/documents/upload
+Content-Type: multipart/form-data; boundary=StudyAgentBoundary
+
+--StudyAgentBoundary
+Content-Disposition: form-data; name="file"; filename="test-note.txt"
+Content-Type: text/plain
+
+< ./test-note.txt
+--StudyAgentBoundary--
+
+
+###
+DELETE http://localhost:8080/api/documents/5
