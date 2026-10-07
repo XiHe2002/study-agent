@@ -113,15 +113,12 @@ public class DocumentService {
                         : embeddings.get(0).dimension();
 
         return new DocumentUploadResponse(
+                documentId,
                 originalFilename,
-                storedFilename,
                 file.getSize(),
                 file.getContentType(),
-                content,
-                chunks,
-                embeddings.size(),
-                embeddingDimension,
-                documentId
+                chunks.size(),
+                embeddingDimension
         );
     }
 

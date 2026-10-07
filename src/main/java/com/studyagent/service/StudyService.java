@@ -83,10 +83,14 @@ public class StudyService {
                 quizService.getAttempts();
 
         List<QuizAttemptResponse> mistakes =
-                quizService.getMistakeAttempts();
+                quizService.getMistakeAttempts(
+                        attempts
+                );
 
         List<WeakPointSummaryResponse> historicalWeakPoints =
-                quizService.getWeakPointSummary();
+                quizService.getWeakPointSummary(
+                        attempts
+                );
 
         int totalAttempts =
                 attempts.size();

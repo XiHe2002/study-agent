@@ -354,13 +354,38 @@ public class QuizService {
         List<QuizAttempt> attempts =
                 quizAttemptMapper.selectList(null);
 
+        if (attempts.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Long> questionIds =
+                attempts.stream()
+                        .map(QuizAttempt::getQuestionId)
+                        .distinct()
+                        .toList();
+
+        List<QuizQuestion> questions =
+                quizQuestionMapper.selectBatchIds(
+                        questionIds
+                );
+
+        Map<Long, QuizQuestion> questionMap =
+                new HashMap<>();
+
+        for (QuizQuestion question : questions) {
+            questionMap.put(
+                    question.getId(),
+                    question
+            );
+        }
+
         List<QuizAttemptResponse> responses =
                 new ArrayList<>();
 
         for (QuizAttempt attempt : attempts) {
 
             QuizQuestion question =
-                    quizQuestionMapper.selectById(
+                    questionMap.get(
                             attempt.getQuestionId()
                     );
 
@@ -439,9 +464,14 @@ public class QuizService {
     }
 
     public List<WeakPointSummaryResponse> getWeakPointSummary() {
+        return getWeakPointSummary(
+                getAttempts()
+        );
+    }
 
-        List<QuizAttemptResponse> attempts =
-                getAttempts();
+    public List<WeakPointSummaryResponse> getWeakPointSummary(
+            List<QuizAttemptResponse> attempts
+    ) {
 
         Map<String, Integer> counts =
                 new HashMap<>();
@@ -480,9 +510,14 @@ public class QuizService {
     }
 
     public List<QuizAttemptResponse> getMistakeAttempts() {
+        return getMistakeAttempts(
+                getAttempts()
+        );
+    }
 
-        List<QuizAttemptResponse> attempts =
-                getAttempts();
+    public List<QuizAttemptResponse> getMistakeAttempts(
+            List<QuizAttemptResponse> attempts
+    ) {
 
         Map<Long, QuizAttemptResponse> latestByQuestion =
                 new HashMap<>();
