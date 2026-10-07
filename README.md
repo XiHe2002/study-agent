@@ -506,7 +506,7 @@ Writing 和 Translation 返回的 `score` 为 `ai_diagnostic_score`，不是官�
 ### 1. Clone Project
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/XiHe2002/study-agent.git
 cd study-agent
 ```
 
