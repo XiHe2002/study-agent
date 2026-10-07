@@ -214,3 +214,44 @@ Content-Type: application/json
 {
   "message": "请查看我当前还没有掌握的题目，并针对这道错题给我生成 1 道新的复习题。不要给我参考答案或完整提示，我想先自己作答。"
 }
+
+
+### CET-6 Demo - 预览前三道真实阅读错题
+GET http://localhost:8080/api/demo/cet6/preview
+
+### CET-6 Demo - AI 诊断第一道真实阅读错题
+GET http://localhost:8080/api/demo/cet6/diagnose-first
+
+### CET-6 Demo - AI 批量诊断前三道真实阅读错题
+GET http://localhost:8080/api/demo/cet6/diagnose-three
+
+### CET-6 Demo - 三道错题局部学习画像
+GET http://localhost:8080/api/demo/cet6/profile-preview
+
+### CET-6 - Section B 段落匹配错题诊断
+GET http://localhost:8080/api/demo/cet6/diagnose/36
+
+
+### CET-6 - Section C 仔细阅读错题诊断
+GET http://localhost:8080/api/demo/cet6/diagnose/46
+
+### CET-6 - 完整真实阅读批改报告
+GET http://localhost:8080/api/demo/cet6/reading-report
+
+### CET-6 - 三种阅读题型批量 AI 诊断
+GET http://localhost:8080/api/demo/cet6/reading-diagnosis
+
+### CET-6 - 真实阅读学习画像
+GET http://localhost:8080/api/demo/cet6/reading-profile
+
+### CET-6 - synthetic 听力 Demo 自动批改
+GET http://localhost:8080/api/demo/cet6/demo-listening-report
+
+### CET-6 - synthetic Writing AI 诊断
+GET http://localhost:8080/api/demo/cet6/demo-writing-evaluation
+
+### CET-6 - synthetic Translation AI 诊断
+GET http://localhost:8080/api/demo/cet6/demo-translation-evaluation
+
+###
+GET http://localhost:8080/api/demo/cet6/report
